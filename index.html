@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Horní Hrad — zážitkový web s filmovými animacemi a scrollytellingem."
+    />
+    <title>Horní Hrad</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Montserrat:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="vendor/lenis.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="lamp-cursor" id="lamp-cursor" aria-hidden="true">
+      <img
+        class="lamp-cursor__img"
+        src="assets/gauntlet-cursor.png?v=7"
+        alt=""
+        width="650"
+        height="631"
+        decoding="async"
+      />
+    </div>
+
+    <main id="app">
+      <section class="hero-fog-scene" aria-label="Úvodní scéna">
+        <button
+          type="button"
+          class="hero-sound-toggle"
+          id="hero-sound-toggle"
+          aria-label="Zapnout zvuk"
+          aria-pressed="false"
+        >
+          <span class="hero-sound-toggle__pulse" aria-hidden="true"></span>
+          <span
+            class="hero-sound-toggle__pulse hero-sound-toggle__pulse--delay"
+            aria-hidden="true"
+          ></span>
+          <span class="hero-sound-toggle__icon-wrap" aria-hidden="true">
+            <svg
+              class="hero-sound-toggle__icon hero-sound-toggle__icon--muted"
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M11 5 6 9H3v6h3l5 4V5z" />
+              <line x1="17" y1="9" x2="21" y2="13" />
+              <line x1="21" y1="9" x2="17" y2="13" />
+            </svg>
+            <svg
+              class="hero-sound-toggle__icon hero-sound-toggle__icon--on"
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              hidden
+            >
+              <path d="M11 5 6 9H3v6h3l5 4V5z" />
+              <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+              <path d="M18 6a8.5 8.5 0 0 1 0 12" />
+            </svg>
+          </span>
+        </button>
+
+        <div
+          class="layer-bg"
+          role="img"
+          aria-label="Rytíř ve mlze u starého stromu"
+        ></div>
+
+        <div class="layer-fog-depth" aria-hidden="true">
+          <video
+            class="video-fog-depth"
+            src="assets/fog-depth.mp4"
+            autoplay
+            loop
+            muted
+            playsinline
+            aria-hidden="true"
+          ></video>
+        </div>
+
+        <div class="layer-castle" aria-hidden="true">
+          <img
+            class="layer-castle__img"
+            src="assets/castle-hill-haunstejn-edit.png?v=1"
+            alt=""
+            width="1024"
+            height="576"
+            decoding="async"
+          />
+        </div>
+
+        <div class="layer-fog-path" aria-hidden="true">
+          <video
+            class="video-fog-path"
+            src="assets/fog-path-slide.mp4"
+            autoplay
+            loop
+            muted
+            playsinline
+            aria-hidden="true"
+          ></video>
+        </div>
+
+        <div class="layer-fog-overlay" aria-hidden="true">
+          <video
+            class="video-fog"
+            src="assets/fog-overlay.mp4"
+            autoplay
+            loop
+            muted
+            playsinline
+            aria-hidden="true"
+          ></video>
+        </div>
+
+        <div class="hero-category-fog-veil" aria-hidden="true"></div>
+
+        <div class="hero-intro">
+          <h1 class="hero-title">Vítejte na hradě Haunštejně</h1>
+        </div>
+
+        <button
+          type="button"
+          class="hero-scroll-down is-visible"
+          id="hero-scroll-down"
+          aria-label="Scroluj dolů"
+        >
+          <span class="hero-scroll-down__icon-wrap" aria-hidden="true">
+            <svg
+              class="hero-scroll-down__icon"
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 5v14" />
+              <path d="m6 13 6 6 6-6" />
+            </svg>
+          </span>
+          <span class="hero-scroll-down__label">Scroluj dolů</span>
+        </button>
+
+        <div class="path-slide" aria-hidden="true">
+          <div class="path-slide__inner">
+            <h2 class="path-slide__title">Vyber si svou cestu</h2>
+            <nav class="path-slide__nav" aria-label="Hlavní kategorie">
+              <ul class="path-slide__list">
+                <li><a class="path-slide__link path-slide__link--skoly" href="#skoly">Pro školy</a></li>
+                <li>
+                  <a
+                    class="path-slide__link path-slide__link--navstevnici"
+                    href="#navstevnici"
+                    >Pro návštěvníky</a
+                  >
+                </li>
+                <li>
+                  <a class="path-slide__link path-slide__link--zazitky" href="#zazitky"
+                    >Zážitky</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="path-slide__link path-slide__link--historie"
+                    href="#historie"
+                    >Historie</a
+                  >
+                </li>
+                <li>
+                  <a class="path-slide__link path-slide__link--kontakty" href="#kontakty"
+                    >Kontakty</a
+                  >
+                </li>
+                <li>
+                  <a class="path-slide__link path-slide__link--search" href="#hledat"
+                    >Hledat</a
+                  >
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </section>
+
+      <section class="scroll-spacer" aria-hidden="true"></section>
+    </main>
+
+    <div class="parchment-overlay" id="parchment-overlay" data-lenis-prevent hidden aria-hidden="true">
+      <div class="history-scene" aria-hidden="true">
+        <video
+          class="history-scene__bg history-scene__bg--video"
+          src="assets/history-bg.mov"
+          autoplay
+          loop
+          muted
+          playsinline
+          aria-hidden="true"
+        ></video>
+        <video
+          class="history-scene__bg history-scene__bg--video-slide2"
+          src="assets/history-slide2-bg.mp4"
+          loop
+          muted
+          playsinline
+          preload="auto"
+          aria-hidden="true"
+        ></video>
+        <div class="history-scene__light-waves" aria-hidden="true"></div>
+        <div class="history-scene__veil" aria-hidden="true"></div>
+      </div>
+      <div class="parchment-overlay__panel">
+        <button
+          type="button"
+          class="parchment-overlay__close parchment-lamp"
+          aria-label="Zavřít historii"
+        >
+          <span class="parchment-lamp__glow" aria-hidden="true"></span>
+          <img
+            class="parchment-lamp__img"
+            src="assets/lamp-cursor.png?v=2"
+            alt=""
+            width="64"
+            height="64"
+            decoding="async"
+          />
+        </button>
+        <div class="parchment-overlay__content parchment-overlay__content--slide1">
+          <h2 class="parchment-overlay__title">Historie</h2>
+          <p class="parchment-overlay__text">
+            Počátky hradu Hauenštejnu nejsou dosud plně objasněny. Rozbor místního jména
+            Hauenstein, vzniklého z tvarů Haue (tj. motyka, sekera či palice) a stein (skála,
+            v přeneseném významu hrad) v sobě odráží skutečnost, že v okolí hradu probíhala
+            těžba. Jeho poloha střežící soutěsky Ohře na pomezí Loketska a Žatecka v blízkosti
+            saských hranic byla navíc velmi výhodná. Posádka hradu pohledově skrytého za
+            zvlněným terénem mohla úspěšně ovládat pohyb na řece i v jejím blízkém okolí.
+          </p>
+        </div>
+        <div class="parchment-overlay__content parchment-overlay__content--slide2">
+          <p class="parchment-overlay__text">
+            Dosud se předpokládalo, že hrad vznikl jako královský v pásmu pohraničních opěrných
+            bodů panovnické moci zdejší oblasti ve druhé polovině 13. století, a to buď za
+            Přemysla Otakara II. či jeho syna Václava II. Ovšem nelze ani vyloučit možnost, že
+            jej založil jeho první známý držitel, loketský purkrabí Mikuláš Winkler. Ten hrad
+            držel snad kolem roku 1320, ovšem záhy jej postoupil klášteru v Doksanech, který tu
+            v okolí vlastnil několik vesnic, mj. Velichov, Jakubov a Krásný Les. Doksanský
+            klášter přenechal hrad Hauenštejn i s příslušenstvím 23. ledna 1336 českému králi
+            Janu Lucemburskému výměnou za poplužní dvůr ve Velichově. Hauenštejn poté patřil
+            dvě desetiletí ke královskému majetku. Jelikož statek patřící k hradu byl velice
+            skrovný a ve výše zmíněné listině z roku 1336 se dokonce neuvádí ani jeho rozsah,
+            královská komora jej hodlala zvětšit. Karel IV. proto uzavřel 17. října 1357 smlouvu
+            s postoloprtským klášterem a za statek Libočany s mlýnem na žateckém předměstí a
+            dalším majetkem od něho získal vesnice Boč, Hrachovovou, část Stráže, Vykmanov,
+            Srní, Ondřejov, Hrzín, Osvinov, Smilov a další pozemky. Ty následně připojil k
+            Hauenštejnu, k němuž po dlouhou dobu patřily.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="school-overlay"
+      id="school-overlay"
+      data-lenis-prevent
+      hidden
+      aria-hidden="true"
+    >
+      <div class="school-scroll-spacer">
+        <div class="school-stage">
+          <div class="school-scene" aria-hidden="true">
+            <div class="school-scene__bg" aria-hidden="true"></div>
+            <div class="school-scene__veil" aria-hidden="true"></div>
+          </div>
+
+          <div class="school-stage__zoom">
+            <img
+              class="school-scene__figure school-scene__figure--left"
+              src="assets/school-curtain-toned.png"
+              alt=""
+              width="1024"
+              height="559"
+              decoding="async"
+            />
+            <img
+              class="school-scene__figure school-scene__figure--right"
+              src="assets/school-jester.png"
+              alt=""
+              width="800"
+              height="600"
+              decoding="async"
+            />
+            <div class="school-overlay__intro">
+              <article class="school-intro-layout">
+                <div class="school-intro-layout__copy">
+                  <h2 class="school-overlay__title school-intro-panel__title">
+                    Pro školy
+                  </h2>
+                  <p class="school-intro__text school-intro__text--lead">
+                    Tajuplný hrad s překrásnou okolní přírodou. Poutavé prohlídky rozlehlého areálu
+                    vždy přizpůsobujeme věku i zájmu dětí či studentů.
+                  </p>
+                </div>
+                <nav
+                  class="school-intro__categories school-intro-layout__actions"
+                  aria-label="Kategorie pro školy"
+                >
+                  <a class="school-intro__btn" href="#apartmany">Apartmány</a>
+                  <a class="school-intro__btn" href="#pdf-pruvodce">PDF průvodce</a>
+                </nav>
+              </article>
+            </div>
+          </div>
+
+          <div class="school-inner" aria-hidden="true">
+            <div class="school-treasures" aria-hidden="true">
+              <img
+                class="school-treasure school-treasure--chest-large"
+                src="assets/school-treasures/chest-large.png"
+                alt=""
+                decoding="async"
+              />
+              <img
+                class="school-treasure school-treasure--chest-closed"
+                src="assets/school-treasures/chest-closed.png"
+                alt=""
+                decoding="async"
+              />
+              <img
+                class="school-treasure school-treasure--crown"
+                src="assets/school-treasures/crown.png"
+                alt=""
+                decoding="async"
+              />
+              <img
+                class="school-treasure school-treasure--gem"
+                src="assets/school-treasures/gem.png"
+                alt=""
+                decoding="async"
+              />
+              <img
+                class="school-treasure school-treasure--chest-small"
+                src="assets/school-treasures/chest-small.png"
+                alt=""
+                decoding="async"
+              />
+              <img
+                class="school-treasure school-treasure--scepter"
+                src="assets/school-treasures/scepter.png"
+                alt=""
+                decoding="async"
+              />
+              <img
+                class="school-treasure school-treasure--stand"
+                src="assets/school-treasures/stand.png"
+                alt=""
+                decoding="async"
+              />
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="school-overlay__close"
+            aria-label="Zavřít sekci Pro školy"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="visitors-overlay"
+      id="visitors-overlay"
+      data-lenis-prevent
+      hidden
+      aria-hidden="true"
+    >
+      <div class="visitors-overlay__scene" aria-hidden="true">
+        <video
+          class="visitors-overlay__video"
+          src="assets/visitors-bg.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          aria-hidden="true"
+        ></video>
+      </div>
+      <div class="visitors-overlay__veil" aria-hidden="true"></div>
+      <button
+        type="button"
+        class="visitors-overlay__close"
+        aria-label="Zavřít sekci Pro návštěvníky"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+
+      <div class="visitors-overlay__scroll" data-lenis-prevent>
+        <section class="visitors-intro-stage" aria-hidden="true"></section>
+
+        <div class="visitors-board">
+          <header class="visitors-board__head">
+            <h2 class="visitors-board__title">Co je nového?</h2>
+            <p class="visitors-board__lead">
+              Co je na hradě nového — stručně a jasně, abyste si výlet naplánovali bez
+              zbytečného hledání.
+            </p>
+          </header>
+
+          <div class="visitors-board__body">
+            <div class="visitors-feed">
+            <article class="visitors-card visitors-card--featured">
+              <p class="visitors-card__meta">
+                <time datetime="2026-03-15">15. března 2026</time>
+              </p>
+              <h3 class="visitors-card__title">
+                Hrad otevírá hlavní sezónu — prohlídky každý den
+              </h3>
+              <p class="visitors-card__text">
+                Od poloviny března jsou zpřístupněny všechny komnat i vyhlídka z věže. První
+                skupiny denně v <em>10:00</em>, poslední vstup v <em>16:30</em>. Doporučujeme
+                rezervaci u větších výprav.
+              </p>
+            </article>
+
+            <article class="visitors-card">
+              <p class="visitors-card__meta">
+                <time datetime="2026-04-02">2. dubna 2026</time>
+              </p>
+              <h3 class="visitors-card__title">Nová okružní trasa sklepeními</h3>
+              <p class="visitors-card__text">
+                Gotická podzemí jsou poprvé propojena s rytířským sálem — kratší okruh vhodný
+                i pro rodiny s dětmi od 7 let.
+              </p>
+            </article>
+
+            <article class="visitors-card">
+              <p class="visitors-card__meta">
+                <time datetime="2026-05-18">18. května 2026</time>
+              </p>
+              <h3 class="visitors-card__title">Víkend živé historie na nádvoří</h3>
+              <p class="visitors-card__text">
+                Ukázky středověkého řemesla, hudba a večerní průvod areálem. Vstupenky na místě
+                i online — kapacita je omezená.
+              </p>
+            </article>
+            </div>
+          </div>
+
+          <section
+            class="visitors-gallery-section"
+            aria-label="Fotografie hradu"
+            hidden
+          >
+            <div class="visitors-gallery">
+              <figure class="visitors-gallery__item visitors-gallery__item--wide">
+                <img
+                  src="assets/visitors-bg.png?v=2"
+                  alt="Letní pohled na Horní Hrad v zeleném lese"
+                  width="2048"
+                  height="1149"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+              <figure class="visitors-gallery__item">
+                <img
+                  src="assets/visitors-photo-aerial.png"
+                  alt="Pohled na hrad z výšky"
+                  width="1200"
+                  height="800"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+              <figure class="visitors-gallery__item">
+                <img
+                  src="assets/visitors-photo-autumn.png"
+                  alt="Podzimní hrad a kaple na kopci"
+                  width="1200"
+                  height="800"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+              <figure class="visitors-gallery__item">
+                <img
+                  src="assets/visitors-photo-courtyard.png"
+                  alt="Večerní nádvoří s ohništěm"
+                  width="1200"
+                  height="800"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="experiences-overlay"
+      id="experiences-overlay"
+      data-lenis-prevent
+      hidden
+      aria-hidden="true"
+    >
+      <div class="experiences-overlay__veil" aria-hidden="true"></div>
+      <div class="experiences-overlay__panel">
+        <button
+          type="button"
+          class="experiences-overlay__close"
+          aria-label="Zavřít sekci Zážitky"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+
+        <div class="experiences-board">
+          <div class="experiences-viewer" aria-label="3D model středověkých zbraní">
+            <canvas id="experiences-3d-canvas"></canvas>
+            <p class="experiences-viewer__status" id="experiences-3d-status">
+              Načítám 3D model…
+            </p>
+          </div>
+
+          <header class="experiences-board__head">
+            <h2 class="experiences-board__title">Zážitky</h2>
+          </header>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="contacts-overlay"
+      id="contacts-overlay"
+      data-lenis-prevent
+      hidden
+      aria-hidden="true"
+    >
+      <div class="contacts-overlay__scene" aria-hidden="true">
+        <video
+          class="contacts-overlay__video"
+          src="assets/contacts-bg.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          aria-hidden="true"
+        ></video>
+      </div>
+      <div class="contacts-overlay__veil" aria-hidden="true"></div>
+      <div class="contacts-overlay__panel">
+        <button
+          type="button"
+          class="contacts-overlay__close"
+          aria-label="Zavřít kontakty"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+
+        <div class="contacts-sheet">
+          <section class="contacts-block">
+            <h2 class="contacts-block__title">hradní kontakt – kancelář:</h2>
+            <p class="contacts-block__label">
+              telefon, SMS, WhatsApp (rezervace, dotazy, objednávky)
+            </p>
+            <p class="contacts-line">
+              <span class="contacts-line__key">tel.:</span>
+              <a class="contacts-line__value" href="tel:+420774055529">774 055 529</a>
+            </p>
+            <p class="contacts-line">
+              <span class="contacts-line__key contacts-line__key--bold">e-mail:</span>
+              <a class="contacts-line__link" href="mailto:hradni.celadka@hornihrad.cz"
+                >hradni.celadka@hornihrad.cz</a
+              >
+            </p>
+            <ul class="contacts-list">
+              <li>rezervace školního výletu</li>
+              <li>rezervace ubytování</li>
+              <li>informace k expozicím a kulturním akcím</li>
+              <li>informace pro vystavovatele</li>
+            </ul>
+          </section>
+
+          <hr class="contacts-sheet__rule" />
+
+          <section class="contacts-block">
+            <p class="contacts-block__name">Pavel Palacký</p>
+            <p class="contacts-line">
+              <span class="contacts-line__key">tel.:</span>
+              <a class="contacts-line__value" href="tel:+420777028820">777 028 820</a>,
+              <a class="contacts-line__value" href="tel:+420353541287">353 541 287</a>
+            </p>
+            <p class="contacts-line">
+              <span class="contacts-line__key">e-mail:</span>
+              <a class="contacts-line__link" href="mailto:pavel.palacky@hornihrad.cz"
+                >pavel.palacky@hornihrad.cz</a
+              >
+            </p>
+          </section>
+
+          <hr class="contacts-sheet__rule" />
+
+          <section class="contacts-block">
+            <h2 class="contacts-block__title">hradní pokladna:</h2>
+            <p class="contacts-line">
+              <span class="contacts-line__key">tel.:</span>
+              <a class="contacts-line__value" href="tel:+420353541287">353 541 287</a>
+            </p>
+          </section>
+
+          <hr class="contacts-sheet__rule" />
+
+          <section class="contacts-block contacts-block--brand">
+            <h2 class="contacts-block__brand">Horní hrad:</h2>
+            <ul class="contacts-links">
+              <li>
+                <a
+                  class="contacts-links__item"
+                  href="https://www.hornihrad.cz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >www.hornihrad.cz</a
+                >
+              </li>
+              <li>
+                <a
+                  class="contacts-links__item"
+                  href="https://www.facebook.com/hornihrad"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >www.facebook.com/hornihrad</a
+                >
+              </li>
+              <li>
+                <a
+                  class="contacts-links__item"
+                  href="https://www.youtube.com/@hornihrad1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >www.youtube.com/@hornihrad1</a
+                >
+              </li>
+              <li>
+                <a
+                  class="contacts-links__item"
+                  href="https://twitter.com/Hornihrad"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >https://twitter.com/Hornihrad</a
+                >
+              </li>
+              <li>
+                <a
+                  class="contacts-links__item"
+                  href="https://www.instagram.com/hauenstejn_hornihrad/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >https://www.instagram.com/hauenstejn_hornihrad/</a
+                >
+              </li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/ScrollTrigger.min.js"></script>
+    <script src="vendor/lenis.min.js"></script>
+    <script src="vendor/three.min.js"></script>
+    <script src="vendor/ColladaLoader.js"></script>
+    <script src="vendor/OrbitControls.js"></script>
+    <script src="js/experiences-3d.js"></script>
+    <script src="js/script.js"></script>
+  </body>
+</html>
