@@ -145,6 +145,11 @@
           id="hero-scroll-down"
           aria-label="Scroluj dolů"
         >
+          <span class="hero-scroll-down__pulse" aria-hidden="true"></span>
+          <span
+            class="hero-scroll-down__pulse hero-scroll-down__pulse--delay"
+            aria-hidden="true"
+          ></span>
           <span class="hero-scroll-down__icon-wrap" aria-hidden="true">
             <svg
               class="hero-scroll-down__icon"
@@ -195,12 +200,37 @@
                   >
                 </li>
                 <li>
-                  <a class="path-slide__link path-slide__link--search" href="#hledat"
-                    >Hledat</a
+                  <button
+                    type="button"
+                    class="path-slide__search-toggle"
+                    aria-expanded="false"
+                    aria-controls="path-slide-search"
                   >
+                    Hledat
+                  </button>
                 </li>
               </ul>
             </nav>
+            <div class="path-slide__search" id="path-slide-search" hidden>
+              <label class="visually-hidden" for="path-slide-search-input"
+                >Hledat sekci na stránce</label
+              >
+              <input
+                type="search"
+                class="path-slide__search-input"
+                id="path-slide-search-input"
+                placeholder="Hledat sekci…"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <ul
+                class="path-slide__search-results"
+                id="path-slide-search-results"
+                role="listbox"
+                aria-label="Nalezené sekce"
+                hidden
+              ></ul>
+            </div>
           </div>
         </div>
       </section>
@@ -212,7 +242,7 @@
       <div class="history-scene" aria-hidden="true">
         <video
           class="history-scene__bg history-scene__bg--video"
-          src="assets/history-bg.mov"
+          src="assets/history-bg.mp4"
           autoplay
           loop
           muted
@@ -221,7 +251,7 @@
         ></video>
         <video
           class="history-scene__bg history-scene__bg--video-slide2"
-          src="assets/history-slide2-bg.mp4"
+          src="assets/history-slide2-bg.mov"
           loop
           muted
           playsinline
@@ -232,21 +262,6 @@
         <div class="history-scene__veil" aria-hidden="true"></div>
       </div>
       <div class="parchment-overlay__panel">
-        <button
-          type="button"
-          class="parchment-overlay__close parchment-lamp"
-          aria-label="Zavřít historii"
-        >
-          <span class="parchment-lamp__glow" aria-hidden="true"></span>
-          <img
-            class="parchment-lamp__img"
-            src="assets/lamp-cursor.png?v=2"
-            alt=""
-            width="64"
-            height="64"
-            decoding="async"
-          />
-        </button>
         <div class="parchment-overlay__content parchment-overlay__content--slide1">
           <h2 class="parchment-overlay__title">Historie</h2>
           <p class="parchment-overlay__text">
@@ -290,27 +305,18 @@
       <div class="school-scroll-spacer">
         <div class="school-stage">
           <div class="school-scene" aria-hidden="true">
-            <div class="school-scene__bg" aria-hidden="true"></div>
+            <video
+              class="school-scene__bg"
+              src="assets/history-slide2-bg.mp4"
+              autoplay
+              muted
+              playsinline
+              aria-hidden="true"
+            ></video>
             <div class="school-scene__veil" aria-hidden="true"></div>
           </div>
 
           <div class="school-stage__zoom">
-            <img
-              class="school-scene__figure school-scene__figure--left"
-              src="assets/school-curtain-toned.png"
-              alt=""
-              width="1024"
-              height="559"
-              decoding="async"
-            />
-            <img
-              class="school-scene__figure school-scene__figure--right"
-              src="assets/school-jester.png"
-              alt=""
-              width="800"
-              height="600"
-              decoding="async"
-            />
             <div class="school-overlay__intro">
               <article class="school-intro-layout">
                 <div class="school-intro-layout__copy">
@@ -564,13 +570,25 @@
       <div class="contacts-overlay__scene" aria-hidden="true">
         <video
           class="contacts-overlay__video"
-          src="assets/contacts-bg.mp4"
+          src="assets/contacts-candle.mp4"
           autoplay
           loop
           muted
           playsinline
+          preload="auto"
           aria-hidden="true"
         ></video>
+        <div class="contacts-overlay__fog" aria-hidden="true">
+          <video
+            class="contacts-overlay__fog-video"
+            src="assets/fog-overlay.mp4"
+            autoplay
+            loop
+            muted
+            playsinline
+            aria-hidden="true"
+          ></video>
+        </div>
       </div>
       <div class="contacts-overlay__veil" aria-hidden="true"></div>
       <div class="contacts-overlay__panel">
@@ -583,104 +601,125 @@
         </button>
 
         <div class="contacts-sheet">
-          <section class="contacts-block">
-            <h2 class="contacts-block__title">hradní kontakt – kancelář:</h2>
-            <p class="contacts-block__label">
-              telefon, SMS, WhatsApp (rezervace, dotazy, objednávky)
-            </p>
-            <p class="contacts-line">
-              <span class="contacts-line__key">tel.:</span>
-              <a class="contacts-line__value" href="tel:+420774055529">774 055 529</a>
-            </p>
-            <p class="contacts-line">
-              <span class="contacts-line__key contacts-line__key--bold">e-mail:</span>
-              <a class="contacts-line__link" href="mailto:hradni.celadka@hornihrad.cz"
-                >hradni.celadka@hornihrad.cz</a
-              >
-            </p>
-            <ul class="contacts-list">
-              <li>rezervace školního výletu</li>
-              <li>rezervace ubytování</li>
-              <li>informace k expozicím a kulturním akcím</li>
-              <li>informace pro vystavovatele</li>
-            </ul>
-          </section>
+          <header class="contacts-sheet__head">
+            <p class="contacts-sheet__eyebrow">Kontakty</p>
+            <h2 class="contacts-sheet__title">Horní Hrad</h2>
+          </header>
 
-          <hr class="contacts-sheet__rule" />
+          <div class="contacts-sheet__grid">
+            <section class="contacts-card">
+              <h3 class="contacts-card__title">Hradní kancelář</h3>
+              <p class="contacts-card__lead">
+                Telefon, SMS, WhatsApp · rezervace, dotazy, objednávky
+              </p>
 
-          <section class="contacts-block">
-            <p class="contacts-block__name">Pavel Palacký</p>
-            <p class="contacts-line">
-              <span class="contacts-line__key">tel.:</span>
-              <a class="contacts-line__value" href="tel:+420777028820">777 028 820</a>,
-              <a class="contacts-line__value" href="tel:+420353541287">353 541 287</a>
-            </p>
-            <p class="contacts-line">
-              <span class="contacts-line__key">e-mail:</span>
-              <a class="contacts-line__link" href="mailto:pavel.palacky@hornihrad.cz"
-                >pavel.palacky@hornihrad.cz</a
-              >
-            </p>
-          </section>
+              <dl class="contacts-meta">
+                <div class="contacts-meta__row">
+                  <dt>Telefon</dt>
+                  <dd>
+                    <a class="contacts-meta__link" href="tel:+420774055529">774 055 529</a>
+                  </dd>
+                </div>
+                <div class="contacts-meta__row">
+                  <dt>E-mail</dt>
+                  <dd>
+                    <a class="contacts-meta__link" href="mailto:hradni.celadka@hornihrad.cz"
+                      >hradni.celadka@hornihrad.cz</a
+                    >
+                  </dd>
+                </div>
+              </dl>
 
-          <hr class="contacts-sheet__rule" />
+              <ul class="contacts-tags">
+                <li>Školní výlety</li>
+                <li>Ubytování</li>
+                <li>Expozice a akce</li>
+                <li>Vystavovatelé</li>
+              </ul>
+            </section>
 
-          <section class="contacts-block">
-            <h2 class="contacts-block__title">hradní pokladna:</h2>
-            <p class="contacts-line">
-              <span class="contacts-line__key">tel.:</span>
-              <a class="contacts-line__value" href="tel:+420353541287">353 541 287</a>
-            </p>
-          </section>
+            <section class="contacts-card">
+              <h3 class="contacts-card__title">Pavel Palacký</h3>
 
-          <hr class="contacts-sheet__rule" />
+              <dl class="contacts-meta">
+                <div class="contacts-meta__row">
+                  <dt>Telefon</dt>
+                  <dd>
+                    <a class="contacts-meta__link" href="tel:+420777028820">777 028 820</a>
+                    <span class="contacts-meta__sep">·</span>
+                    <a class="contacts-meta__link" href="tel:+420353541287">353 541 287</a>
+                  </dd>
+                </div>
+                <div class="contacts-meta__row">
+                  <dt>E-mail</dt>
+                  <dd>
+                    <a class="contacts-meta__link" href="mailto:pavel.palacky@hornihrad.cz"
+                      >pavel.palacky@hornihrad.cz</a
+                    >
+                  </dd>
+                </div>
+              </dl>
+            </section>
 
-          <section class="contacts-block contacts-block--brand">
-            <h2 class="contacts-block__brand">Horní hrad:</h2>
-            <ul class="contacts-links">
+            <section class="contacts-card contacts-card--compact">
+              <h3 class="contacts-card__title">Hradní pokladna</h3>
+              <dl class="contacts-meta">
+                <div class="contacts-meta__row">
+                  <dt>Telefon</dt>
+                  <dd>
+                    <a class="contacts-meta__link" href="tel:+420353541287">353 541 287</a>
+                  </dd>
+                </div>
+              </dl>
+            </section>
+          </div>
+
+          <section class="contacts-social">
+            <h3 class="contacts-social__title">Sítě a web</h3>
+            <ul class="contacts-social__list">
               <li>
                 <a
-                  class="contacts-links__item"
+                  class="contacts-social__link"
                   href="https://www.hornihrad.cz"
                   target="_blank"
                   rel="noopener noreferrer"
-                  >www.hornihrad.cz</a
+                  >Web</a
                 >
               </li>
               <li>
                 <a
-                  class="contacts-links__item"
+                  class="contacts-social__link"
                   href="https://www.facebook.com/hornihrad"
                   target="_blank"
                   rel="noopener noreferrer"
-                  >www.facebook.com/hornihrad</a
+                  >Facebook</a
                 >
               </li>
               <li>
                 <a
-                  class="contacts-links__item"
+                  class="contacts-social__link"
                   href="https://www.youtube.com/@hornihrad1"
                   target="_blank"
                   rel="noopener noreferrer"
-                  >www.youtube.com/@hornihrad1</a
+                  >YouTube</a
                 >
               </li>
               <li>
                 <a
-                  class="contacts-links__item"
+                  class="contacts-social__link"
                   href="https://twitter.com/Hornihrad"
                   target="_blank"
                   rel="noopener noreferrer"
-                  >https://twitter.com/Hornihrad</a
+                  >Twitter</a
                 >
               </li>
               <li>
                 <a
-                  class="contacts-links__item"
+                  class="contacts-social__link"
                   href="https://www.instagram.com/hauenstejn_hornihrad/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  >https://www.instagram.com/hauenstejn_hornihrad/</a
+                  >Instagram</a
                 >
               </li>
             </ul>

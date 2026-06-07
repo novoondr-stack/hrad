@@ -857,7 +857,6 @@
     const panel = overlay.querySelector(".parchment-overlay__panel");
     const contentSlide1 = overlay.querySelector(".parchment-overlay__content--slide1");
     const contentSlide2 = overlay.querySelector(".parchment-overlay__content--slide2");
-    const closeBtn = overlay.querySelector(".parchment-overlay__close");
     let isOpen = false;
     let isAnimating = false;
     let scrollEnabled = false;
@@ -1216,8 +1215,6 @@
       openParchment();
     });
 
-    closeBtn.addEventListener("click", closeParchment);
-
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && isOpen) {
         closeParchment();
@@ -1234,8 +1231,6 @@
     if (!link || !overlay) return;
 
     const sceneBg = overlay.querySelector(".school-scene__bg");
-    const sceneFigure = overlay.querySelector(".school-scene__figure--right");
-    const sceneFigureLeft = overlay.querySelector(".school-scene__figure--left");
     const sceneVeil = overlay.querySelector(".school-scene__veil");
     const zoomLayer = overlay.querySelector(".school-stage__zoom");
     const intro = overlay.querySelector(".school-overlay__intro");
@@ -1256,6 +1251,101 @@
     let scrollEnabled = false;
     let isOnInnerSlide = false;
     let innerTransition = null;
+    let schoolVideoFreezeHandler = null;
+    let schoolVideoCoastTween = null;
+
+    const SCHOOL_VIDEO_FREEZE_RATIO = 0.5;
+    const SCHOOL_VIDEO_COAST_DURATION = 0.95;
+    const SCHOOL_VIDEO_COAST_LEAD = 0.12;
+
+    initFogVideos(overlay);
+
+    function clearSchoolVideoFreezeListener() {
+      if (schoolVideoFreezeHandler && sceneBg) {
+        sceneBg.removeEventListener("timeupdate", schoolVideoFreezeHandler);
+        schoolVideoFreezeHandler = null;
+      }
+    }
+
+    function stopSchoolVideoCoast() {
+      if (schoolVideoCoastTween) {
+        schoolVideoCoastTween.kill();
+        schoolVideoCoastTween = null;
+      }
+    }
+
+    function resetSchoolVideoPlayback() {
+      stopSchoolVideoCoast();
+      clearSchoolVideoFreezeListener();
+    }
+
+    function freezeSchoolVideoAtMiddle() {
+      if (!sceneBg || !sceneBg.duration || !isFinite(sceneBg.duration)) return;
+      stopSchoolVideoCoast();
+      clearSchoolVideoFreezeListener();
+      sceneBg.currentTime = sceneBg.duration * SCHOOL_VIDEO_FREEZE_RATIO;
+      sceneBg.pause();
+    }
+
+    function beginSchoolVideoCoast() {
+      if (!sceneBg || schoolVideoCoastTween) return;
+
+      const freezeTime = sceneBg.duration * SCHOOL_VIDEO_FREEZE_RATIO;
+      if (sceneBg.currentTime >= freezeTime - 0.01) {
+        freezeSchoolVideoAtMiddle();
+        return;
+      }
+
+      clearSchoolVideoFreezeListener();
+      sceneBg.pause();
+
+      schoolVideoCoastTween = gsap.to(sceneBg, {
+        currentTime: freezeTime,
+        duration: SCHOOL_VIDEO_COAST_DURATION,
+        ease: "power2.out",
+        onComplete: function () {
+          schoolVideoCoastTween = null;
+          freezeSchoolVideoAtMiddle();
+        },
+      });
+    }
+
+    function startSchoolVideo() {
+      if (!sceneBg) return;
+
+      resetSchoolVideoPlayback();
+      sceneBg.currentTime = 0;
+
+      schoolVideoFreezeHandler = function () {
+        if (!sceneBg.duration || !isFinite(sceneBg.duration)) return;
+        const freezeTime = sceneBg.duration * SCHOOL_VIDEO_FREEZE_RATIO;
+        if (sceneBg.currentTime >= freezeTime - SCHOOL_VIDEO_COAST_LEAD) {
+          beginSchoolVideoCoast();
+        }
+      };
+
+      sceneBg.addEventListener("timeupdate", schoolVideoFreezeHandler);
+
+      if (sceneBg.readyState >= 1) {
+        const playPromise = sceneBg.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(function () {});
+        }
+        return;
+      }
+
+      sceneBg.addEventListener(
+        "loadedmetadata",
+        function onMetadata() {
+          sceneBg.removeEventListener("loadedmetadata", onMetadata);
+          const playPromise = sceneBg.play();
+          if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(function () {});
+          }
+        },
+        { once: true }
+      );
+    }
 
     function resetSchoolScrollState() {
       overlay.classList.remove("is-scrollable", "is-inner-visible", "is-zoom-hidden");
@@ -1269,12 +1359,11 @@
       }
 
       gsap.set(zoomLayer, { clearProps: "transform,opacity,visibility" });
-      gsap.set(sceneFigure, { clearProps: "transform,opacity" });
-      gsap.set(sceneFigureLeft, { clearProps: "transform,opacity" });
       gsap.set(intro, { clearProps: "transform,opacity" });
-      gsap.set(sceneBg, { clearProps: "opacity,visibility" });
+      gsap.set(sceneBg, { clearProps: "opacity,transform,visibility" });
       gsap.set(inner, { clearProps: "opacity" });
       gsap.set(treasures, { clearProps: "opacity" });
+      resetSchoolVideoPlayback();
     }
 
     function playInnerTransition() {
@@ -1296,17 +1385,8 @@
           scale: 2.15,
           duration: 1.75,
           ease: "power2.inOut",
-          transformOrigin: "72% 88%",
+          transformOrigin: "50% 50%",
         })
-        .to(
-          sceneFigure,
-          {
-            x: "22vw",
-            duration: 1.75,
-            ease: "power2.inOut",
-          },
-          0
-        )
         .to(
           zoomLayer,
           {
@@ -1352,7 +1432,6 @@
       scrollEnabled = false;
       overlay.classList.remove("is-inner-visible", "is-zoom-hidden");
       gsap.set(zoomLayer, { visibility: "visible", scale: 2.15, opacity: 0 });
-      gsap.set(sceneFigure, { x: "22vw" });
       gsap.set(intro, { opacity: 1, y: 0 });
       gsap.set(schoolTitle, { opacity: 0, y: 14 });
       gsap.set(schoolCategories, { opacity: 0, y: 10 });
@@ -1365,7 +1444,6 @@
             innerTransition = null;
             scrollEnabled = true;
             gsap.set(zoomLayer, { scale: 1, opacity: 1 });
-            gsap.set(sceneFigure, { x: 0 });
           },
         })
         .to(treasures, {
@@ -1398,16 +1476,7 @@
             scale: 1,
             duration: 1.35,
             ease: "power2.inOut",
-            transformOrigin: "72% 88%",
-          },
-          0.2
-        )
-        .to(
-          sceneFigure,
-          {
-            x: 0,
-            duration: 1.35,
-            ease: "power2.inOut",
+            transformOrigin: "50% 50%",
           },
           0.2
         )
@@ -1484,9 +1553,9 @@
       overlay.classList.remove("is-ready");
       document.body.classList.add("school-open");
 
-      gsap.set(sceneBg, { opacity: 0 });
-      gsap.set(sceneFigure, { opacity: 0, x: "28vw" });
-      gsap.set(sceneFigureLeft, { opacity: 0, x: "-28vw" });
+      startSchoolVideo();
+
+      gsap.set(sceneBg, { opacity: 0, scale: 1.05 });
       gsap.set(sceneVeil, { opacity: 1 });
       gsap.set(intro, { opacity: 1, y: 0 });
       gsap.set(schoolTitle, { opacity: 0, y: 20 });
@@ -1511,29 +1580,10 @@
         })
         .to(sceneBg, {
           opacity: 1,
+          scale: 1,
           duration: 2.4,
           ease: "power1.inOut",
         }, 0.35)
-        .to(
-          sceneFigure,
-          {
-            opacity: 1,
-            x: 0,
-            duration: 2,
-            ease: "power1.inOut",
-          },
-          1.1
-        )
-        .to(
-          sceneFigureLeft,
-          {
-            opacity: 0.58,
-            x: 0,
-            duration: 2,
-            ease: "power1.inOut",
-          },
-          1.1
-        )
         .to(
           schoolTitle,
           {
@@ -1593,6 +1643,11 @@
               overlay.hidden = true;
               overlay.setAttribute("aria-hidden", "true");
               document.body.classList.remove("school-open");
+
+              if (sceneBg) {
+                resetSchoolVideoPlayback();
+                sceneBg.pause();
+              }
 
               if (lenisInstance && typeof lenisInstance.start === "function") {
                 lenisInstance.start();
@@ -1689,10 +1744,6 @@
     const boardBody = overlay.querySelector(".visitors-board__body");
     const cards = overlay.querySelectorAll(".visitors-card");
     const closeBtn = overlay.querySelector(".visitors-overlay__close");
-    const visitorsMusic = new Audio("assets/visitors-ambient.mp3");
-    visitorsMusic.preload = "auto";
-    visitorsMusic.loop = true;
-    visitorsMusic.volume = 0.4;
 
     let isOpen = false;
     let isAnimating = false;
@@ -1802,18 +1853,6 @@
       );
     }
 
-    function startVisitorsMusic() {
-      visitorsMusic.currentTime = 0;
-      const playPromise = visitorsMusic.play();
-      if (playPromise && typeof playPromise.catch === "function") {
-        playPromise.catch(function () {});
-      }
-    }
-
-    function stopVisitorsMusic() {
-      visitorsMusic.pause();
-    }
-
     function revealVisitors() {
       isAnimating = true;
       isOpen = true;
@@ -1827,7 +1866,6 @@
       overlay.setAttribute("aria-hidden", "false");
       overlay.classList.add("is-active");
       document.body.classList.add("visitors-open");
-      startVisitorsMusic();
 
       if (video) {
         video.currentTime = 0;
@@ -1864,7 +1902,6 @@
         .timeline({
           onComplete: function () {
             fogBridge.playExit(function () {
-              stopVisitorsMusic();
               overlay.classList.remove("is-active");
               overlay.hidden = true;
               overlay.setAttribute("aria-hidden", "true");
@@ -2112,7 +2149,9 @@
     const overlay = document.getElementById("contacts-overlay");
     if (!link || !overlay) return;
 
-    const video = overlay.querySelector(".contacts-overlay__video");
+    const videos = overlay.querySelectorAll(
+      ".contacts-overlay__video, .contacts-overlay__fog-video"
+    );
     const veil = overlay.querySelector(".contacts-overlay__veil");
     const panel = overlay.querySelector(".contacts-overlay__panel");
     const sheet = overlay.querySelector(".contacts-sheet");
@@ -2120,7 +2159,42 @@
     let isOpen = false;
     let isAnimating = false;
 
+    function playContactsVideos() {
+      videos.forEach(function (video) {
+        const startPlayback = function () {
+          video.currentTime = 0;
+          const playPromise = video.play();
+          if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(function () {});
+          }
+        };
+
+        if (video.readyState >= 2) {
+          startPlayback();
+          return;
+        }
+
+        video.addEventListener("loadeddata", startPlayback, { once: true });
+        video.load();
+      });
+    }
+
+    function pauseContactsVideos() {
+      videos.forEach(function (video) {
+        video.pause();
+      });
+    }
+
+    function preloadContactsVideos() {
+      videos.forEach(function (video) {
+        if (video.readyState >= 1) return;
+        video.preload = "auto";
+        video.load();
+      });
+    }
+
     initFogVideos(overlay);
+    window.addEventListener("load", preloadContactsVideos, { once: true });
 
     function revealContacts() {
       isAnimating = true;
@@ -2135,10 +2209,7 @@
       overlay.classList.add("is-active");
       document.body.classList.add("contacts-open");
 
-      if (video) {
-        video.currentTime = 0;
-        video.play();
-      }
+      playContactsVideos();
 
       gsap.set(veil, { opacity: 1 });
       gsap.set(panel, { opacity: 0 });
@@ -2168,9 +2239,7 @@
               overlay.setAttribute("aria-hidden", "true");
               document.body.classList.remove("contacts-open");
 
-              if (video) {
-                video.pause();
-              }
+              pauseContactsVideos();
 
               if (lenisInstance && typeof lenisInstance.start === "function") {
                 lenisInstance.start();
@@ -2207,6 +2276,9 @@
       event.preventDefault();
       openContacts();
     });
+
+    link.addEventListener("mouseenter", preloadContactsVideos, { once: true });
+    link.addEventListener("focus", preloadContactsVideos, { once: true });
 
     closeBtn.addEventListener("click", closeContacts);
 
@@ -2297,55 +2369,101 @@
   }
 
   /**
-   * Ambientní hudba od začátku — do kliknutí na kategorii v menu
+   * Ambientní hudba — hraje na úvodu (rytíř) a v menu „Vyber si svou cestu“
    */
-  function initAmbientMusic() {
+  function initAmbientMusic(heroApi, fogBridge) {
     const ambient = new Audio("assets/ambient.mp3");
     ambient.preload = "auto";
     ambient.loop = true;
     ambient.volume = 0.38;
 
-    let stopped = false;
-    let started = false;
+    let soundEnabled = false;
 
-    function tryStartAmbient() {
-      if (stopped || started) return;
-
-      const playPromise = ambient.play();
-      if (!playPromise || typeof playPromise.then !== "function") return;
-
-      playPromise
-        .then(function () {
-          started = true;
-        })
-        .catch(function () {});
+    function isSectionOpen() {
+      return (
+        document.body.classList.contains("parchment-open") ||
+        document.body.classList.contains("school-open") ||
+        document.body.classList.contains("visitors-open") ||
+        document.body.classList.contains("experiences-open") ||
+        document.body.classList.contains("contacts-open")
+      );
     }
 
-    function stopAmbient() {
-      if (stopped) return;
-      stopped = true;
-      started = false;
+    function shouldPlayAmbient() {
+      return soundEnabled && !isSectionOpen();
+    }
+
+    function playAmbient() {
+      const playPromise = ambient.play();
+      if (!playPromise || typeof playPromise.catch !== "function") return;
+      playPromise.catch(function () {});
+    }
+
+    function pauseAmbient() {
       ambient.pause();
     }
 
-    tryStartAmbient();
+    function syncAmbient() {
+      if (shouldPlayAmbient()) {
+        playAmbient();
+      } else {
+        pauseAmbient();
+      }
+    }
+
+    function setSoundEnabled(enabled) {
+      soundEnabled = enabled;
+      syncAmbient();
+    }
 
     function retryOnGesture() {
-      if (!stopped && !started) {
-        tryStartAmbient();
+      if (shouldPlayAmbient() && ambient.paused) {
+        playAmbient();
       }
     }
 
     window.addEventListener("pointerdown", retryOnGesture, { passive: true });
     window.addEventListener("keydown", retryOnGesture, { passive: true });
 
-    document.querySelectorAll(".path-slide__link").forEach(function (link) {
-      link.addEventListener("click", stopAmbient, true);
-    });
+    if (fogBridge) {
+      if (typeof fogBridge.playEnter === "function") {
+        const originalPlayEnter = fogBridge.playEnter.bind(fogBridge);
+        fogBridge.playEnter = function (onFogPeak) {
+          pauseAmbient();
+          originalPlayEnter(onFogPeak);
+        };
+      }
+
+      if (typeof fogBridge.playExit === "function") {
+        const originalPlayExit = fogBridge.playExit.bind(fogBridge);
+        fogBridge.playExit = function (onComplete) {
+          originalPlayExit(function () {
+            if (typeof onComplete === "function") {
+              onComplete();
+            }
+            syncAmbient();
+          });
+        };
+      }
+    }
+
+    if (
+      heroApi &&
+      heroApi.scrollTimeline &&
+      typeof heroApi.scrollTimeline.eventCallback === "function"
+    ) {
+      heroApi.scrollTimeline.eventCallback("onUpdate", syncAmbient);
+    }
 
     return {
-      tryStart: tryStartAmbient,
-      stop: stopAmbient,
+      setSoundEnabled: setSoundEnabled,
+      sync: syncAmbient,
+      tryStart: function () {
+        setSoundEnabled(true);
+      },
+      stop: function () {
+        setSoundEnabled(false);
+      },
     };
   }
 
@@ -2400,8 +2518,10 @@
         }
       });
 
-      if (soundOn && ambientApi && typeof ambientApi.tryStart === "function") {
-        ambientApi.tryStart();
+      if (soundOn && ambientApi && typeof ambientApi.setSoundEnabled === "function") {
+        ambientApi.setSoundEnabled(true);
+      } else if (!soundOn && ambientApi && typeof ambientApi.setSoundEnabled === "function") {
+        ambientApi.setSoundEnabled(false);
       }
     }
 
@@ -2459,17 +2579,184 @@
     });
   }
 
+  /**
+   * Hledat — otevře řádek pro vyhledání sekcí v menu
+   */
+  function initPathSlideSearch() {
+    const toggleBtn = document.querySelector(".path-slide__search-toggle");
+    const searchPanel = document.getElementById("path-slide-search");
+    const searchInput = document.getElementById("path-slide-search-input");
+    const searchResults = document.getElementById("path-slide-search-results");
+
+    if (!toggleBtn || !searchPanel || !searchInput || !searchResults) return;
+
+    toggleBtn.addEventListener(
+      "pointerdown",
+      function (event) {
+        event.stopPropagation();
+      },
+      true
+    );
+
+    const sections = [
+      {
+        label: "Pro školy",
+        linkSelector: ".path-slide__link--skoly",
+        terms: ["pro skoly", "skoly", "skola", "apartmany", "apartmány", "pdf", "pruvodce"],
+      },
+      {
+        label: "Pro návštěvníky",
+        linkSelector: ".path-slide__link--navstevnici",
+        terms: ["pro navstevniky", "navstevnici", "navstevnik", "aktuality", "novinky"],
+      },
+      {
+        label: "Zážitky",
+        linkSelector: ".path-slide__link--zazitky",
+        terms: ["zazitky", "zazitek", "3d", "zbrane", "zbraně"],
+      },
+      {
+        label: "Historie",
+        linkSelector: ".path-slide__link--historie",
+        terms: ["historie", "hrad", "papyrus", "pergamen"],
+      },
+      {
+        label: "Kontakty",
+        linkSelector: ".path-slide__link--kontakty",
+        terms: ["kontakty", "kontakt", "telefon", "email", "e-mail"],
+      },
+    ];
+
+    let isOpen = false;
+
+    function normalizeSearchText(value) {
+      return value
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
+    }
+
+    function closeSearch() {
+      isOpen = false;
+      toggleBtn.classList.remove("is-active");
+      toggleBtn.setAttribute("aria-expanded", "false");
+      searchPanel.classList.remove("is-open");
+      searchPanel.hidden = true;
+      searchInput.value = "";
+      searchResults.innerHTML = "";
+      searchResults.hidden = true;
+    }
+
+    function openSearch() {
+      isOpen = true;
+      toggleBtn.classList.add("is-active");
+      toggleBtn.setAttribute("aria-expanded", "true");
+      searchPanel.hidden = false;
+      requestAnimationFrame(function () {
+        searchPanel.classList.add("is-open");
+        searchInput.focus();
+      });
+    }
+
+    function filterSections(query) {
+      const normalizedQuery = normalizeSearchText(query);
+      if (!normalizedQuery) return [];
+
+      return sections.filter(function (section) {
+        const label = normalizeSearchText(section.label);
+        if (label.includes(normalizedQuery)) return true;
+        return section.terms.some(function (term) {
+          return term.includes(normalizedQuery) || normalizedQuery.includes(term);
+        });
+      });
+    }
+
+    function renderResults(matches) {
+      searchResults.innerHTML = "";
+
+      if (!matches.length) {
+        searchResults.hidden = true;
+        return;
+      }
+
+      matches.forEach(function (section) {
+        const item = document.createElement("li");
+        item.className = "path-slide__search-result";
+        item.setAttribute("role", "option");
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "path-slide__search-result-btn";
+        button.textContent = section.label;
+        button.addEventListener("click", function () {
+          const targetLink = document.querySelector(section.linkSelector);
+          closeSearch();
+          if (targetLink) {
+            targetLink.click();
+          }
+        });
+
+        item.appendChild(button);
+        searchResults.appendChild(item);
+      });
+
+      searchResults.hidden = false;
+    }
+
+    function handleSearchInput() {
+      renderResults(filterSections(searchInput.value));
+    }
+
+    toggleBtn.addEventListener("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (isOpen) {
+        closeSearch();
+      } else {
+        openSearch();
+      }
+    });
+
+    searchInput.addEventListener("input", handleSearchInput);
+
+    searchInput.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeSearch();
+        toggleBtn.focus();
+        return;
+      }
+
+      if (event.key !== "Enter") return;
+
+      const firstResult = searchResults.querySelector(".path-slide__search-result-btn");
+      if (firstResult) {
+        event.preventDefault();
+        firstResult.click();
+      }
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && isOpen) {
+        closeSearch();
+        toggleBtn.focus();
+      }
+    });
+  }
+
   window.addEventListener("load", function () {
     ScrollTrigger.refresh();
   });
 
   const heroFogScene = initHeroFogScene();
   const categoryFogBridge = initCategoryFogBridge(heroFogScene);
+  const ambientMusic = initAmbientMusic(heroFogScene, categoryFogBridge);
   initParchmentHistorie(lenis, categoryFogBridge);
   initSchoolOverlay(lenis, categoryFogBridge);
   initVisitorsOverlay(lenis, categoryFogBridge);
   initExperiencesOverlay(lenis, categoryFogBridge);
   initContactsOverlay(lenis, categoryFogBridge);
+  initPathSlideSearch();
 
   document
     .querySelectorAll(
@@ -2487,7 +2774,6 @@
 
   initClickSound();
   initMenuHoverSound();
-  const ambientMusic = initAmbientMusic();
   initHeroSoundToggle(ambientMusic);
   initHeroScrollDown(heroFogScene, lenis);
   initLampCursor();
